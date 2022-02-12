@@ -172,6 +172,8 @@
 
   + 启动`json-server --watch ./test.json --port 8000`
 
+  + 打开`loaclhost:8000`
+
   + `json-server`配置好允许所有访问，解决了跨域问题。`Access-Control-Allow-Origin`
 
     ```js
@@ -239,4 +241,37 @@
 
     + 注意的细节就是`_expand=post`，id名是固定的方式的，我们的`comments`中根据`postId`找到`posts`表
     + 加入我们修改posts表名为names，则关联id应该改名为`nameId`，我们的`_expand=post`改为`_expand=name`。这是一种固定格式。
+
++ #### 关于对象的小技巧
+
+  + 可以把字符串作为key。这样我们可以把路由的路径字符串作为key，然后根据路由变化，键值对中对应路由值显示出来。算是一个小技巧而已。
+
+    ```jsx
+    const iconList = {
+      "/home":<UserOutlined />,
+      "/user-manage":<UserOutlined />,
+      "/user-manage/list":<UserOutlined />,
+      "/right-manage":<UserOutlined />,
+      "/right-manage/role/list":<UserOutlined />,
+      "/right-manage/right/list":<UserOutlined />
+      //.......
+    }
+    
+    // 后端将路由作为item.key发出
+    // iconList[item.key]找到对应图片
+    return menuList.map(item=>{
+          if(item.children && checkPagePermission(item)){
+            return <SubMenu key={item.key} icon={iconList[item.key]} title={item.title}>
+               { renderMenu(item.children) }
+            </SubMenu>
+          }
+    
+          return checkPagePermission(item) && <Menu.Item key={item.key} icon={iconList[item.key]}  onClick={()=>{
+            //  console.log(props)
+            props.history.push(item.key)
+          }}>{item.title}</Menu.Item>
+        })
+    ```
+
+    
 
