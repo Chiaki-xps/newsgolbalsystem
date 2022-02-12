@@ -8,9 +8,9 @@ export default function IndexRouter() {
         <HashRouter>
             <Switch>
                 <Route path='/login' component={Login} />
-                <Route path='/' render={() => {
-                    localStorage.getItem('token')?<NewsSandBox></NewsSandBox>:<Redirect to = "/login" />
-                }} />
+                {/* <Route path='/' render={() => { return (localStorage.getItem('token')?<NewsSandBox></NewsSandBox>:<Redirect to = "/login" />) }} /> */}
+                {/* 等价于 */}
+                <Route path="/" render={()=>localStorage.getItem("token")? <NewsSandBox></NewsSandBox>:<Redirect to="/login"/> }/>
             </Switch>
         </HashRouter>
     )
