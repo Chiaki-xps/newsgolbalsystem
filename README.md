@@ -98,3 +98,71 @@
 
   + `yarn add antd -S`。
   + `antd`旧的版本需要安装一下插件，按需打包。现在的版本已经实现按需打包。
+
++ #### withRouter
+
+  + 我们在开发中不是通过路由切换过来的子组件说明父级没有做对于它的路由跳转，也就props没有路由相关属性
+
+  + 把不是通过路由切换过来的组件中，将react-router 的 history、location、match 三个对象传入props对象上
+
+    ```jsx
+    import React,{Component} from 'react'
+    import {Switch,Route,NavLink,Redirect,withRouter} from 'react-router-dom' //引入withRouter
+    import One from './One'
+    import NotFound from './NotFound'
+    class App extends Component{
+        //此时才能获取this.props,包含（history, match, location）三个对象
+        console.log(this.props);  //输出{match: {…}, location: {…}, history: {…}, 等}
+        render(){return (<div className='app'>
+                <NavLink to='/one/users'>用户列表</NavLink>
+                <NavLink to='/one/companies'>公司列表</NavLink>
+                <Switch>
+                    <Route path='/one/:type?' component={One} />
+                    <Redirect from='/' to='/one' exact />
+                    <Route component={NotFound} />
+                </Switch>
+            </div>)
+        }
+    }
+    // 把App传入到withRoute，这时App的props就有路由的基本属性
+    export default withRouter(App)
+    ```
+
++ #### 列表技巧
+
+  ```js
+  ...
+  function SideMenu(props) {
+  
+    // 下面menuList只是一个形参名
+    const renderMenu = (menuList)=>{
+      return menuList.map(item=>{
+        // 假如我们的菜单有子菜单返回SubMenu，没有就Menu.Item
+        if(item.children){
+          return <SubMenu key={item.key} icon={item.icon} title={item.title}>
+             // 每次遍历的时候顺便把我们的子菜单名一起渲染出来
+             { renderMenu(item.children) }
+          </SubMenu>
+        }
+  
+        return <Menu.Item key={item.key} icon={item.icon} onClick={()=>{
+          //  console.log(props)
+          props.history.push(item.key)
+        }}>{item.title}</Menu.Item>
+      })
+    }
+    return (
+      <Sider trigger={null} collapsible collapsed={false}>
+        <div className="logo" >全球新闻发布管理系统</div>
+        <Menu theme="dark" mode="inline" defaultSelectedKeys={['3']}>
+            {renderMenu(menuList)}
+        </Menu>
+      </Sider>
+    )
+  }
+  // 我们的子菜单想要完成路由跳转就需要被withRouter包裹
+  export default withRouter(SideMenu)
+  ```
+
+  
+
