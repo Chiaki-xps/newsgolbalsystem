@@ -164,5 +164,79 @@
   export default withRouter(SideMenu)
   ```
 
-  
++ #### json-server
+
+  + `npm install -g json-server`
+
+  + 创建json文件
+
+  + 启动`json-server --watch ./test.json --port 8000`
+
+  + `json-server`配置好允许所有访问，解决了跨域问题。`Access-Control-Allow-Origin`
+
+    ```js
+     const ajax = ()=>{
+    
+            // id获取到对应id数据
+            // http://localhost:8000/posts/:id 
+    
+            //取数据  get
+            // axios.get("http://localhost:8000/posts/2").then(res=>{
+            //     console.log(res.data)
+            // })
+    
+            // 增  post id自增长
+            // axios.post("http://localhost:8000/posts",{
+            //     title:"33333",
+            //     author:"xiaoming"
+            // })
+    
+            // 更新 put 全部替换
+            // axios.put("http://localhost:8000/posts/1",{
+            //     title:"1111-修改"
+            // })
+    
+            // 更新 patch 局部更新
+            // axios.patch("http://localhost:8000/posts/1",{
+            //     title:"1111-修改-11111"
+            // }) 
+    
+            // 删除  delete
+            // axios.delete("http://localhost:8000/posts/1")
+        
+            // _embed 获取相关联的表，固定拼接?_embed=想要相关联的数据库表名（json中应该算是对象）
+            // axios.get("http://localhost:8000/posts?_embed=comments").then(res=>{
+            //     console.log(res.data)
+            // })
+    
+            // _expand 根据关联的id向上查找
+            // axios.get("http://localhost:8000/comments?_expand=post").then(res=>{
+            //     console.log(res.data)
+            // })
+        }
+    ```
+
+    ```json
+    {
+      "posts": [
+        {
+          "id": 1,
+          "title": "1111-修改-11111",
+          "author": "kerwin"
+        },
+        ...
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "body": "11111-comment",
+          "postId": 1
+        },
+        ...
+      ]
+    }
+    ```
+
+    + 注意的细节就是`_expand=post`，id名是固定的方式的，我们的`comments`中根据`postId`找到`posts`表
+    + 加入我们修改posts表名为names，则关联id应该改名为`nameId`，我们的`_expand=post`改为`_expand=name`。这是一种固定格式。
 
