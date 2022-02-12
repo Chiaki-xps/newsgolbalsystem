@@ -6,7 +6,7 @@ module.exports = function (app) {
         '/api',
         createProxyMiddleware({
             // 下面是你要代理的域名
-            target: 'http://localhost:5000',
+            target: 'https://i.maoyan.com',
             changeOrigin: true,
         })
     );
