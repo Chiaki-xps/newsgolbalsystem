@@ -70,5 +70,27 @@
   
     + 重启项目
   
-+ 
++ #### 路由架构
+
+  ![image-20220212111432870](README.assets/image-20220212111432870.png)
+
+  + `yarn add react-router-dom -S`
+
+  + 注意我们的路由是属于模糊匹配的。而且直接使用`<Route path='' component={} >`会进行多个的匹配。因此我们需要对它进行一个组件包裹`Switch`组件包裹，见名知意，`Switch`表示按顺序匹配到一个就不继续匹配了。
+
+    + 注意我们的react-route-domV5和V6版本是有差异的
+
+    + `Switch`被替换成了`Routes`
+
+    + `Route`属性中`component={组件}`修改成了`element={<组件 />}`
+
+    + 具体变化:
+
+      + `https://blog.csdn.net/weixin_47091394/article/details/121772779`
+
+      + `https://segmentfault.com/a/1190000039190541`
+
+      + `https://v5.reactrouter.com/web/api/Route/component`
+
+    + 为了项目统一，暂时先用V5版本。
 
