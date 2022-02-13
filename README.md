@@ -423,7 +423,25 @@
         }
     ```
 
-    
++ #### antd的Tree组件
+
+  ```jsx
+  const onCheck = (checkKeys)=>{
+          // console.log(checkKeys)
+          setcurrentRights(checkKeys.checked)
+      }
+  
+  
+  <Tree
+                  checkable
+                  checkedKeys = {currentRights}
+                  onCheck={onCheck}
+                  checkStrictly = {true}
+                  treeData={rightList}
+              />
+  ```
+
+  + 能够发现我们的`Tree`组件中属性`onCheck`传入一个函数，这个函数被调用的时候会自动把最新选中的数据项作为参数传入到回调函数中。
 
 
 
