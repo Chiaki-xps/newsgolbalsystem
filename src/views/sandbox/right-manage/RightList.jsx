@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Table, Tag, Modal } from 'antd'
+import { Button, Table, Tag, Modal,Popover, Switch} from 'antd'
 import axios from 'axios'
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 const { confirm } = Modal
@@ -43,11 +43,33 @@ export default function RightList() {
             render: (item) => {
                 return <div>
                     <Button danger shape="circle" icon={<DeleteOutlined />} onClick={() => confirmMethod(item)} />
-                    <Button type="primary" shape="circle" icon={<EditOutlined />} />
+                    
+                    <Popover content={<div style={{textAlign:"center"}}>
+                        <Switch checked={item.pagepermisson} onChange={()=>switchMethod(item)}></Switch>
+                    </div>} title="页面配置项" trigger={item.pagepermisson===undefined?'':'click'}>
+                        <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.pagepermisson===undefined}/>
+                    </Popover>
                 </div>
             }
         }
     ];
+
+    const  switchMethod = (item)=>{
+        item.pagepermisson = item.pagepermisson===1?0:1
+        // console.log(item)
+        // 强制刷新
+        setdataSource([...dataSource])
+
+        if(item.grade===1){
+            axios.patch(`http://localhost:5000/rights/${item.id}`,{
+                pagepermisson:item.pagepermisson
+            })
+        }else{
+            axios.patch(`http://localhost:5000/children/${item.id}`,{
+                pagepermisson:item.pagepermisson
+            })
+        }
+    }
 
     const confirmMethod = (item) => {
         confirm({
@@ -72,7 +94,7 @@ export default function RightList() {
             setdataSource(dataSource.filter(data => data.id !== item.id))
             axios.delete(`http://localhost:5000/rights/${item.id}`)
         }else{
-            console.log('dataSource', dataSource)
+            // console.log('dataSource', dataSource)
             // 注意filter是一个浅拷贝
             let list = dataSource.filter(data=>data.id===item.rightId)
             // console.log('list', list)
