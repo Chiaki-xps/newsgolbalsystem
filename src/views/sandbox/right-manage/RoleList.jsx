@@ -8,7 +8,6 @@ export default function RoleList() {
     const [rightList, setRightList] = useState([])
     const [currentRights, setcurrentRights] = useState([])
     const [currentId, setcurrentId] = useState(0)
-    // 是否显示弹出框
     const [isModalVisible, setisModalVisible] = useState(false)
     const columns = [
         {
@@ -108,7 +107,6 @@ export default function RoleList() {
             <Table dataSource={dataSource} columns={columns}
                 rowKey={(item) => item.id}></Table>
 
-            {/* 弹出框 */}
             <Modal title="权限分配" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
             <Tree
                 checkable
