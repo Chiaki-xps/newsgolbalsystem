@@ -273,5 +273,34 @@
         })
     ```
 
-    
++ #### 项目中关于判断的小技巧
+
+  ```js
+  return menuList.map(item=>{
+        // 注意item.children为undefined。利用长度来决定是否为父菜单，不是父菜单就不会有下标图标
+        if(item.children?.length>0 && checkPagePermission(item)){
+          return <SubMenu key={item.key} icon={iconList[item.key]} title={item.title}>
+             { renderMenu(item.children) }
+          </SubMenu>
+        }
+  ```
+
++ 让菜单栏单独滚动技巧
+
+  ```js
+  <Sider trigger={null} collapsible collapsed={false} >
+        // 1. 用一个div包裹，变成一个flex布局，然后高度100%，方向垂直 
+        <div style={{display:"flex",height:"100%","flexDirection":"column"}}>
+          <div className="logo" >全球新闻发布管理系统</div>
+  		// 菜单栏设置长度铺满，一旦展开子菜单超出100%就会出现滚动条
+          <div style={{flex:1,"overflow":"auto"}}>
+            <Menu theme="dark" mode="inline" selectedKeys={selectKeys} className="aaaaaaa" defaultOpenKeys={openKeys}>
+                {renderMenu(meun)}
+            </Menu>
+          </div>
+        </div>
+  </Sider>
+  ```
+
+  
 

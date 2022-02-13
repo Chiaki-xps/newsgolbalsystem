@@ -46,8 +46,6 @@ const { SubMenu } = Menu
 //     ]
 //   }
 // ]
-
-// 将路由路径作为key，然后对应的是图标，后端给到的菜单还带着对应的key表示路由。我们可以巧妙把想要展示的图标结合路由变成键值对，然后匹配显示，算是一个小技巧吧。
 const iconList = {
   "/home":<UserOutlined />,
   "/user-manage":<UserOutlined />,
@@ -75,7 +73,8 @@ function SideMenu(props) {
   }
   const renderMenu = (menuList)=>{
     return menuList.map(item=>{
-      if(item.children && checkPagePermission(item)){
+      // 注意item.children为undefined。利用长度来决定是否为父菜单，不是父菜单就不会有下标图标
+      if(item.children?.length>0 && checkPagePermission(item)){
         return <SubMenu key={item.key} icon={iconList[item.key]} title={item.title}>
            { renderMenu(item.children) }
         </SubMenu>
@@ -87,12 +86,20 @@ function SideMenu(props) {
       }}>{item.title}</Menu.Item>
     })
   }
+
+  // console.log(props.location.pathname)
+  const selectKeys = [props.location.pathname]
+  const openKeys = ["/"+props.location.pathname.split("/")[1]]
   return (
-    <Sider trigger={null} collapsible collapsed={false}>
-      <div className="logo" >全球新闻发布管理系统</div>
-      <Menu theme="dark" mode="inline" defaultSelectedKeys={['3']}>
-          {renderMenu(meun)}
-      </Menu>
+    <Sider trigger={null} collapsible collapsed={false} >
+      <div style={{display:"flex",height:"100%","flexDirection":"column"}}>
+        <div className="logo" >全球新闻发布管理系统</div>
+        <div style={{flex:1,"overflow":"auto"}}>
+          <Menu theme="dark" mode="inline" selectedKeys={selectKeys} className="aaaaaaa" defaultOpenKeys={openKeys}>
+              {renderMenu(meun)}
+          </Menu>
+        </div>
+      </div>
     </Sider>
   )
 }
