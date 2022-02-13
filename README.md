@@ -285,7 +285,7 @@
         }
   ```
 
-+ 让菜单栏单独滚动技巧
++ #### 让菜单栏单独滚动技巧
 
   ```js
   <Sider trigger={null} collapsible collapsed={false} >
@@ -302,5 +302,23 @@
   </Sider>
   ```
 
-  
++ #### 菜单栏根据路由动态高亮
 
+  + 利用`defaultSelectKeys`就是选中高亮，`defaultOpenKeys`打开到子菜单栏，这个穿的是父菜单栏的路由，就是上一级，所以要做判断是否有上一级，并split
+  + 在我们打开页面的时候，可能路由会发生跳转，动态改变了路由，但是我们的`defaultSelectKeys`是非受控属性，以为不能动态变化，替换成`selectedKeys`
+
+  ```jsx
+  const selectKeys = [props.location.pathname]
+  const openKeys = ["/"+props.location.pathname.split("/")[1]]
+  
+  
+  <Menu theme="dark" mode="inline" selectedKeys={selectKeys} className="aaaaaaa" defaultOpenKeys={openKeys}>
+                {renderMenu(meun)}
+            </Menu>
+  ```
+
+  + 假设路由为`/user-mange/list`
+    + `"/user-mange/list".split("/")`得到数组`['', "user-mange", "list"]`
+    + 然后取数组第一项就是`/user-mange/list".split("/")[1]`就是`"user-mange"`
+  + 受控组件
+    + 能够根据外部状态改变。
