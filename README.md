@@ -325,6 +325,7 @@
 
 + #### Table组件开发
 
-  + `columns`表示列，有`title`，`datatIndex`这里传入的值是为了和`dataSource`中的key进行匹配。有自己单独的`key`值是可选的 。
+  + `columns`表示列，有`title`，`datatIndex`这里传入的值是为了和`dataSource`中的key进行匹配。有自己单独的`key`值是可选的 ，`render`属性可选，用于渲染组件等等，值为一个函数，这样做可以给这一列数据添加样式等等。或者渲染一个组件等等。
   + 所以在开发中，如果传入的`datatIndex`需要交涉好，传入的`dataSource`有对应的key。
   + 我们希望我们的`dataSource`是动态的，所以应该传入一个`state`。
+
