@@ -338,13 +338,91 @@
   + 一旦我们完成操作的同时，应当同步后端数据，并且页面同步刷新。
 
   + 一般来说我们可以先修改页面使用`setState`完成修改，改变页面，之后发送请求。
-  + 
 
 + #### 关于columns中的render
 
   + `render: (text, record, index) => {}`参数分别为当前行的值，当前行数据，行索引。参数名并不固定。
 
+    ![image-20220213151409060](README.assets/image-20220213151409060.png)
 
+    `dataSource.filter(data => data.id !== item.id)`，data数据来自dataSource。
+
+    细节，如果删除的是子项，最终父级没有子级可以怎该一个判断
+
+    ![image-20220213152334757](README.assets/image-20220213152334757.png)
+
+    json-server父级被删，关联的子级会一起删除。grade表示表的层级。
+
++ #### 关于子菜单项的删除
+
+  + 第一点`json-server`项目已经中子级想要找到父级（父级名后面要加s，例`rights`）通过`父级名去除s加上Id`（例如`rightId`）。
+  + 本项目中父级`/right/${id名}`和对应的子菜单`children/${id名}`所处接口不一样，所以才要做判断。
+
++ #### 重点，关于filter
+
+  + 使用filter返回的是一个新的数组，但是我们使用的是一个多层级的数组对象的话，会发现filter只是一个浅拷贝。
+
+    ```js
+    // fiter只是浅拷贝
+    var me = [{
+        id: 0,
+        name: 'a',
+        friend: {
+            from: 'china'
+        } 
+    }, 
+    {
+        id: 0,
+        name: 'b',
+        friend: {
+            from: 'Japan'
+        } 
+    },
+    {
+        id: 1,
+        name: 'c'
+    }]
+    
+    var it = me.filter(data => data.id === 0)
+    
+    // it [{ id: 0, name: 'a', friend: { from: 'china' } },  { id: 0, name: 'b', friend: { from: 'Japan' } } ]
+    // console.log('it', it)
+    
+    it[0].friend.from = '测试'
+    
+    console.log('me', me)
+    
+    // me [
+    //     { id: 0, name: 'a', friend: { from: '测试' } }, 
+    //     { id: 0, name: 'b', friend: { from: 'Japan' } },  { id: 1, name: 'c' }
+    //   ]
+    ```
+
+    所以我们的项目修改删除功能
+
+    ```jsx
+        //删除
+        const deleteMethod = (item) => {
+            // console.log(item)
+            // 当前页面同步状态 + 后端同步
+            if (item.grade === 1) {
+                setdataSource(dataSource.filter(data => data.id !== item.id))
+                axios.delete(`http://localhost:5000/rights/${item.id}`)
+            }else{
+                console.log('dataSource', dataSource)
+                // 注意filter是一个浅拷贝
+                let list = dataSource.filter(data=>data.id===item.rightId)
+                // console.log('list', list)
+                // list是一个对象数组，里面只有一项数据，因为点击时某一列而已。
+                list[0].children = list[0].children.filter(data=>data.id!==item.id)
+                // setdataSource(dataSource) 传入的引用和上一次一模一样所以不会刷新
+                setdataSource([...dataSource])
+                axios.delete(`http://localhost:5000/children/${item.id}`)
+            }
+        }
+    ```
+
+    
 
 
 

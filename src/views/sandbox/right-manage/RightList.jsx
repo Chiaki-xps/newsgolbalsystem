@@ -72,8 +72,13 @@ export default function RightList() {
             setdataSource(dataSource.filter(data => data.id !== item.id))
             axios.delete(`http://localhost:5000/rights/${item.id}`)
         }else{
+            console.log('dataSource', dataSource)
+            // 注意filter是一个浅拷贝
             let list = dataSource.filter(data=>data.id===item.rightId)
+            // console.log('list', list)
+            // list是一个对象数组，里面只有一项数据，因为点击时某一列而已。
             list[0].children = list[0].children.filter(data=>data.id!==item.id)
+            // setdataSource(dataSource) 传入的引用和上一次一模一样所以不会刷新
             setdataSource([...dataSource])
             axios.delete(`http://localhost:5000/children/${item.id}`)
         }
