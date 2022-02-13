@@ -3,7 +3,7 @@ import { Button } from 'antd';
 // import axios from 'axios'
 export default function Home() {
 
-    const ajax = ()=>{
+    const ajax = () => {
 
         // id获取到对应id数据
         // http://localhost:8000/posts/:id 
@@ -31,7 +31,7 @@ export default function Home() {
 
         // 删除  delete
         // axios.delete("http://localhost:8000/posts/1")
-    
+
         // _embed 获取相关联的表，固定拼接?_embed=想要相关联的数据库表名（json中应该算是对象）
         // axios.get("http://localhost:8000/posts?_embed=comments").then(res=>{
         //     console.log(res.data)
