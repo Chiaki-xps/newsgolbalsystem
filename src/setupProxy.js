@@ -1,4 +1,6 @@
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const {
+    createProxyMiddleware
+} = require('http-proxy-middleware');
 
 module.exports = function (app) {
     app.use(
@@ -10,6 +12,24 @@ module.exports = function (app) {
             changeOrigin: true,
         })
     );
+
+    app.use(
+        '/speed',
+        createProxyMiddleware({
+            target: 'https://m.maoyan.com',
+            changeOrigin: true,
+        })
+    );
+
+    app.use(
+        '/speed',
+        createProxyMiddleware({
+            target: 'https://monitor.maoyan.com/api',
+            changeOrigin: true,
+        })
+    );
+
+
 
     // 代理多个就多写几次
     // app.use(

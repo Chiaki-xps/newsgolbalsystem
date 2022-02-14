@@ -1,168 +1,143 @@
-import React, { useState, useEffect } from 'react'
-import { Button, Table, Modal, Switch, Form, Input, Select } from 'antd'
+import React, { useState, useEffect, useRef } from 'react'
+import { Button, Table, Modal, Switch } from 'antd'
 import axios from 'axios'
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import UserForm from '../../../components/user-manage/UserForm'
 const { confirm } = Modal
-const { Option } = Select;
 
 export default function UserList() {
-  const [dataSource, setdataSource] = useState([])
-  const [isAddVisible, setisAddVisible] = useState(false)
-  const [roleList, setroleList] = useState([])
-  const [regionList, setregionList] = useState([])
-  useEffect(() => {
-    axios.get("http://localhost:5000/users?_expand=role").then(res => {
-      const list = res.data
-      setdataSource(list)
-    })
-  }, [])
+    const [dataSource, setdataSource] = useState([])
+    const [isAddVisible, setisAddVisible] = useState(false)
+    const [roleList, setroleList] = useState([])
+    const [regionList, setregionList] = useState([])
+    const addForm = useRef(null)
+    useEffect(() => {
+        axios.get("http://localhost:5000/users?_expand=role").then(res => {
+            const list = res.data
+            setdataSource(list)
+        })
+    }, [])
 
-  useEffect(() => {
-    axios.get("http://localhost:5000/regions").then(res => {
-      const list = res.data
-      setregionList(list)
-    })
-  }, [])
+    useEffect(() => {
+        axios.get("http://localhost:5000/regions").then(res => {
+            const list = res.data
+            setregionList(list)
+        })
+    }, [])
 
-  useEffect(() => {
-    axios.get("http://localhost:5000/roles").then(res => {
-      const list = res.data
-      setroleList(list)
-    })
-  }, [])
+    useEffect(() => {
+        axios.get("http://localhost:5000/roles").then(res => {
+            const list = res.data
+            setroleList(list)
+        })
+    }, [])
 
-  const columns = [
-    {
-      title: '区域',
-      dataIndex: 'region',
-      render: (region) => {
-        return <b>{region === "" ? '全球' : region}</b>
-      }
-    },
-    {
-      title: '角色名称',
-      dataIndex: 'role',
-      render: (role) => {
-        // 细节,往往我们的数据一开始是没有的,所以第一次可能会出现undefined的报错,所以应当假如问号
+    const columns = [
+        {
+            title: '区域',
+            dataIndex: 'region',
+            render: (region) => {
+                return <b>{region === "" ? '全球' : region}</b>
+            }
+        },
+        {
+            title: '角色名称',
+            dataIndex: 'role',
+            render: (role) => {
+                // 细节,往往我们的数据一开始是没有的,所以第一次可能会出现undefined的报错,所以应当假如问号
+                return role?.roleName
+            }
+        },
+        {
+            title: "用户名",
+            dataIndex: 'username'
+        },
+        {
+            title: "用户状态",
+            dataIndex: 'roleState',
+            render: (roleState, item) => {
+                return <Switch checked={roleState} disabled={item.default}></Switch>
+            }
+        },
+        {
+            title: "操作",
+            render: (item) => {
+                return <div>
+                    <Button danger shape="circle" icon={<DeleteOutlined />} onClick={() => confirmMethod(item)} disabled={item.default} />
 
-        return role?.roleName
-      }
-    },
-    {
-      title: "用户名",
-      dataIndex: 'username'
-    },
-    {
-      title: "用户状态",
-      dataIndex: 'roleState',
-      render: (roleState, item) => {
-        return <Switch checked={roleState} disabled={item.default}></Switch>
-      }
-    },
-    {
-      title: "操作",
-      render: (item) => {
-        return <div>
-          <Button danger shape="circle" icon={<DeleteOutlined />} onClick={() => confirmMethod(item)} disabled={item.default} />
+                    <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.default} />
+                </div>
+            }
+        }
+    ];
 
-          <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.default} />
-        </div>
-      }
+    const confirmMethod = (item) => {
+        confirm({
+            title: '你确定要删除?',
+            icon: <ExclamationCircleOutlined />,
+            // content: 'Some descriptions',
+            onOk() {
+                //   console.log('OK');
+                deleteMethod(item)
+            },
+            onCancel() {
+                //   console.log('Cancel');
+            },
+        });
+
     }
-  ];
+    //删除
+    const deleteMethod = (item) => {
+        // console.log(item)
+        // 当前页面同步状态 + 后端同步
 
-  const confirmMethod = (item) => {
-    confirm({
-      title: '你确定要删除?',
-      icon: <ExclamationCircleOutlined />,
-      // content: 'Some descriptions',
-      onOk() {
-        //   console.log('OK');
-        deleteMethod(item)
-      },
-      onCancel() {
-        //   console.log('Cancel');
-      },
-    });
+    }
 
-  }
-  //删除
-  const deleteMethod = (item) => {
-    // console.log(item)
-    // 当前页面同步状态 + 后端同步
+    const addFormOK = () => {
+        addForm.current.validateFields().then(value => {
+            // console.log(value)
 
-  }
+            setisAddVisible(false)
 
-  return (
-    <div>
-      <Button type="primary" onClick={() => {
-        setisAddVisible(true)
-      }}>添加用户</Button>
-      <Table dataSource={dataSource} columns={columns}
-        pagination={{
-          pageSize: 5
-        }}
-        rowKey={item => item.id}
-      />
+            //post到后端，生成id，再设置 datasource, 方便后面的删除和更新
+            axios.post(`http://localhost:5000/users`, {
+                ...value,
+                "roleState": true,
+                "default": false,
+            }).then(res=>{
+                console.log(res.data)
+                setdataSource([...dataSource,res.data])
+            })
+        }).catch(err => {
+            console.log(err)
+        })
+    }
 
-      <Modal
-        visible={isAddVisible}
-        title="添加用户"
-        okText="确定"
-        cancelText="取消"
-        onCancel={() => {
-          setisAddVisible(false)
-        }}
-        onOk={() => {
-          console.log("add")
-        }}
-      >
-        <Form
-          layout="vertical"
-        >
-          <Form.Item
-            name="username"
-            label="用户名"
-            rules={[{ required: true, message: 'Please input the title of collection!' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="密码"
-            rules={[{ required: true, message: 'Please input the title of collection!' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="region"
-            label="区域"
-            rules={[{ required: true, message: 'Please input the title of collection!' }]}
-          >
-            <Select>
-              {
-                regionList.map(item =>
-                  <Option value={item.value} key={item.id}>{item.title}</Option>
-                )
-              }
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="roleId"
-            label="角色"
-            rules={[{ required: true, message: 'Please input the title of collection!' }]}
-          >
-            <Select>
-              {
-                roleList.map(item =>
-                  <Option value={item.id} key={item.id}>{item.roleName}</Option>
-                )
-              }
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+    return (
+        <div>
+            <Button type="primary" onClick={() => {
+                setisAddVisible(true)
+            }}>添加用户</Button>
+            <Table dataSource={dataSource} columns={columns}
+                pagination={{
+                    pageSize: 5
+                }}
+                rowKey={item => item.id}
+            />
 
-    </div>
-  )
+            <Modal
+                visible={isAddVisible}
+                title="添加用户"
+                okText="确定"
+                cancelText="取消"
+                onCancel={() => {
+                    setisAddVisible(false)
+                }}
+                onOk={() => addFormOK()}
+            >
+                <UserForm regionList={regionList} roleList={roleList} ref={addForm}></UserForm>
+            </Modal>
+
+        </div>
+    )
 }
