@@ -447,13 +447,53 @@
 
   一开始渲染可能由于还没有获取到数据，导致渲染的数据是一个undefined的，那么取不到对象下面的属性而报错。所以往往给对象取属性的前面加一个可选的问号。
 
++ #### 关于封装高阶组件，使用forwardRef和useImperativeHandle
 
+  + 在我们的开发中，ref和key是不会作为props向下传递的。所以子组件是拿不到ref和key。那我们想要拿到怎么做？
 
+  + 我们可以使用`forwardRef`包裹子组件获取父组件传递的ref。示例：
 
+    ```jsx
+    const App = forwardRef((props, ref) => {
+        // 能够发现上面传入的参数多了一个ref
+        
+        useImperativeHandle(ref, () => ({//第一个参数：暴露哪个ref；第二个参数：暴露什么
+            focus: () => inputRef.current.focus()
+        }));
+        
+        
+        return (
+        	<div> ref.current</div
+        )
+    })
+                
+    export default App;
+    ```
 
+  + `React.forwardRef` 用于将父组件创建的 `ref` 引用关联到子组件中的任意元素上，也可以理解为子组件向父组件暴露 DOM 引用。
 
+    + 除此之外，因为 `ref` 是为了获取某个节点的实例，但是函数式组件是没有实例的，不存在 `this` 的，这种时候是拿不到函数式组件的 `ref` 的，而 `React.forwardRef` 也能解决这个问题。
+    + 细节，这意味着拿到父组件传递的ref，然后组件的ref绑定子组件的ref。实现数据共享。子组件改变ref会导致父组件ref的变化。
+      + 还可以理解成，子组件利用`forwardRef`得到创建创建ref并能够暴露ref的能力，然后父组件通过对子组件`<子组件 ref ={父组件定义的ref}>`获取到子组件的ref。
 
+  + `useImperativeHandle`和`forwardRef`同时使用，减少暴露给父组件的属性。
 
+  + forwardRef用于函数组件。
+  + ref是一个与组件对应的React节点生命周期相同的，可用于存放自定义内容的容器。
+
+  ```http
+  https://tsejx.github.io/react-guidebook/foundation/main-concepts/overview
+  ```
+
++ #### 添加用户
+
+  + 我们的组件进行了分离，用户展示和添加用户分开了。这时我们想要将我们的子组件的值给到父组件，使用`forwardRef`得到父组件的`ref`然后透传回去。
+
++ #### 关于添加和删除
+
+  + 由于我们的项目是根据id删除的，而这个id往往是根据数据库一个个自递增的，不是前端认为增加的。
+  + 所以实行删除删除操作可以先更新再发送网络请求。
+  + 但是patch添加用户不行。只能够先网络请求，生成id后，然后返回生成的数据，添加到渲染数据，再重新渲染。这样我们渲染的用户才有自己的id，才能够直接根据id删除。
 
 
 
