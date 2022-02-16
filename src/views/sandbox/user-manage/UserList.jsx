@@ -8,13 +8,19 @@ const { confirm } = Modal
 export default function UserList() {
     const [dataSource, setdataSource] = useState([])
     const [isAddVisible, setisAddVisible] = useState(false)
+    const [isUpdateVisible, setisUpdateVisible] = useState(false)
     const [roleList, setroleList] = useState([])
     const [regionList, setregionList] = useState([])
+
+    const [isUpdateDisabled, setisUpdateDisabled] = useState(false)
     const addForm = useRef(null)
+    const updateForm = useRef(null)
     useEffect(() => {
         axios.get("http://localhost:5000/users?_expand=role").then(res => {
             const list = res.data
+            // console.log('list', list)
             setdataSource(list)
+            // console.log('dataSource', dataSource)
         })
     }, [])
 
@@ -54,8 +60,18 @@ export default function UserList() {
         {
             title: "用户状态",
             dataIndex: 'roleState',
-            render: (roleState, item) => {
-                return <Switch checked={roleState} disabled={item.default}></Switch>
+            render: (roleState, item, index) => {
+                // console.log('roleState', roleState)
+                // console.log('item-------------------------', item)
+                // console.log('index', index)
+                // console.log(item === dataSource)  // 说明不是引用
+
+                // return <Switch checked={roleState} disabled={item.default} onChange={(item) => {handleChange(item)}}></Switch>
+                // 上面的写法，我们函数事件传入的参数空i睡觉哦当前switch开关状态，也就是true或false
+                // 所以我们选择不在箭头函数写参数，然后里面的回调函数，会通过作用域链的形式向上找到我们要修改的当前数据项，也就是item
+                // 所以应当改成这样
+                return <Switch checked={roleState} disabled={item.default} onChange={() => {handleChange(item)}}></Switch>
+
             }
         },
         {
@@ -64,11 +80,41 @@ export default function UserList() {
                 return <div>
                     <Button danger shape="circle" icon={<DeleteOutlined />} onClick={() => confirmMethod(item)} disabled={item.default} />
 
-                    <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.default} />
+                    <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.default} onClick={() => handleUpdate(item)} />
                 </div>
             }
         }
     ];
+
+    const handleUpdate = (item) => {
+        setTimeout(() => {
+            setisUpdateVisible(true)
+            if (item.roleId === 1) {
+                //禁用
+                setisUpdateDisabled(true)
+            } else {
+                //取消禁用
+                setisUpdateDisabled(false)
+            }
+            updateForm.current.setFieldsValue(item)
+        }, 0)
+    }
+
+    const handleChange = (item) => {
+        // console.log('item----------------', JSON.stringify(item))
+        console.log('dataSource-------------', JSON.stringify(dataSource))
+        // debugger;
+        item.roleState = !item.roleState
+
+        // console.log('item+++++++++++++++++', JSON.stringify(item))
+        console.log('dataSource++++++++++++++', JSON.stringify(dataSource))
+        // 这里用于刷新页面
+        setdataSource([...dataSource])
+
+        axios.patch(`http://localhost:5000/users/${item.id}`, {
+            roleState: item.roleState
+        })
+    }
 
     const confirmMethod = (item) => {
         confirm({
@@ -119,6 +165,10 @@ export default function UserList() {
         })
     }
 
+    const updateFormOK = () => {
+
+    }
+
     return (
         <div>
             <Button type="primary" onClick={() => {
@@ -142,6 +192,20 @@ export default function UserList() {
                 onOk={() => addFormOK()}
             >
                 <UserForm regionList={regionList} roleList={roleList} ref={addForm}></UserForm>
+            </Modal>
+
+            <Modal
+                visible={isUpdateVisible}
+                title="更新用户"
+                okText="更新"
+                cancelText="取消"
+                onCancel={() => {
+                    setisUpdateVisible(false)
+                    setisUpdateDisabled(!isUpdateDisabled)
+                }}
+                onOk={() => updateFormOK()}
+            >
+                <UserForm regionList={regionList} roleList={roleList} ref={updateForm} isUpdateDisabled={isUpdateDisabled}></UserForm>
             </Modal>
 
         </div>

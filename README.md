@@ -344,14 +344,33 @@
 
   + `render: (text, record, index) => {}`参数分别为当前行的值，当前行数据，行索引。参数名并不固定。
 
+  + 其实可以理解成`render:(key, item, index)` 当前行的键来着（dataIndex），这一行的整段数据，渲染的dataSource中的index位置
+
+    ```jsx
+    {
+                title: "用户状态",
+                dataIndex: 'roleState',
+                render: (roleState, item, index) => {
+                    console.log('roleState', roleState)
+                    console.log('item', item)
+                    console.log('index', index)
+                    return <Switch checked={roleState} disabled={item.default} onChange={() => handleChange(item)}></Switch>
+                }
+            },
+    ```
+    
+    ![image-20220216103009068](README.assets/image-20220216103009068.png)
+    
+    ![image-20220216102928894](README.assets/image-20220216102928894.png)
+    
     ![image-20220213151409060](README.assets/image-20220213151409060.png)
-
+    
     `dataSource.filter(data => data.id !== item.id)`，data数据来自dataSource。
-
+    
     细节，如果删除的是子项，最终父级没有子级可以怎该一个判断
-
+    
     ![image-20220213152334757](README.assets/image-20220213152334757.png)
-
+    
     json-server父级被删，关联的子级会一起删除。grade表示表的层级。
 
 + #### 关于子菜单项的删除
@@ -501,7 +520,131 @@
 
     ![image-20220216095746706](README.assets/image-20220216095746706.png)
 
-+ 
++ #### 列表单项刷新细节
+
+  我们给个antd组件传入dataSource后，antd会通过props得到新的值，两者之后除了数据内容可能医院，其他毫不相干，不再同一地址。
+
+  ![image-20220216113320449](README.assets/image-20220216113320449.png)
+
+  事件中，函数有没有些参数区别很大。
+
+  ![image-20220216113658437](README.assets/image-20220216113658437.png)
+
+  此时我们传入的`handleChange`函数中的`item`,得到的就是它的引用地址，函数的修改都会改变原来数据项。但是不会刷新，因为不是`state`。
+
++ #### 关于console.log打印细节问题
+
+  开发过程中，我们使用`log`打印对象的时候，浏览器打印是有延迟的。
+
+  ```js
+  const sen = {
+      id: 1,
+      friends: {
+          name: 'sen',
+          age: 18,
+          now: true
+      }
+  }
+  
+  console.log('------', sen)
+  
+  sen.friends.now = !sen.friends.now
+  
+  console.log('++++++', sen)
+  ```
+
+  在node环境下我们打印出来和我们理论推断时一样的。因为node这边打印类似使用了`JSON.stringify`
+
+  ```js
+  ------ { id: 1, friends: { name: 'sen', age: 18, now: true } } 
+  ++++++ { id: 1, friends: { name: 'sen', age: 18, now: false } }
+  ```
+
+  但是浏览器不一样
+
+  ![image-20220216150721449](README.assets/image-20220216150721449.png)
+
+  显然和我们预期结果不一样。
+
+  ![image-20220216151757319](README.assets/image-20220216151757319.png)
+
+  这时因为我们的`console.log(对象)`打印的是一个地址，我们可以增加一个debugger观察就知道了
+
+  ```js
+  const sen = {
+      id: 1,
+      friends: {
+          name: 'sen',
+          age: 18,
+          now: true
+      }
+  }
+  
+  console.log('------', sen)
+  debugger  // 这里增加一个调试
+  sen.friends.now = !sen.friends.now
+  
+  console.log('++++++', sen)
+  ```
+
+  ![image-20220216153355161](README.assets/image-20220216153355161.png)
+
+  一开始执行第一个打印是正确的，因为当前地址里的内容没有变化。继续执行。
+
+  + 这里一定要注意一个细节。我们的数据点开后，发生变化要重新收起再点开才回去获取最新的数据。这是浏览器直接的特性。
+
+  之后继续执行，重新点开数据发现第一次的打印发生了变化，因为它打印的是地址，所以重新点开后获取里面的数据就是最新修改的
+
+  ![image-20220216155833510](README.assets/image-20220216155833510.png)
+
+  之后完成所有代码执行。就变成了下面的结果。
+
+  ![image-20220216155904862](README.assets/image-20220216155904862.png)
+
++ #### 解决控制台打印地址导致数据显示最新的办法
+
+  + 第一种是debugger
+
+  + 第二种就是使用`JSON.stringify()`
+
+    ```js
+    const sen2 = {
+        id: 1,
+        friends: {
+            name: 'sen',
+            age: 18,
+            now: true
+        }
+    }
+    
+    console.log('------', JSON.stringify(sen2))
+    debugger
+    sen2.friends.now = !sen2.friends.now
+    
+    console.log('++++++', JSON.stringify(sen2))
+    ```
+
+    这样做数据就不会动态变化了
+
+  ![image-20220216160352393](README.assets/image-20220216160352393.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
