@@ -102,12 +102,12 @@ export default function UserList() {
 
     const handleChange = (item) => {
         // console.log('item----------------', JSON.stringify(item))
-        console.log('dataSource-------------', JSON.stringify(dataSource))
+        // console.log('dataSource-------------', JSON.stringify(dataSource))
         // debugger;
         item.roleState = !item.roleState
 
         // console.log('item+++++++++++++++++', JSON.stringify(item))
-        console.log('dataSource++++++++++++++', JSON.stringify(dataSource))
+        // console.log('dataSource++++++++++++++', JSON.stringify(dataSource))
         // 这里用于刷新页面
         setdataSource([...dataSource])
 

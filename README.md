@@ -628,7 +628,57 @@
 
   ![image-20220216160352393](README.assets/image-20220216160352393.png)
 
++ #### 关于props
 
+  ```js
+  // App.js
+  import React, { useEffect, useState } from 'react'
+  import IndexRouter from './router/IndexRouter';
+  import Test from './Test';
+  
+  
+  import './App.css';
+  
+  function App() {
+  
+    const [state, setState] = useState({name: 'sen',age: 18})
+  
+    useEffect(() => {
+      setTimeout(clo, 1000)
+    })
+  
+    const clo = () => {
+      console.log('state', state)
+    }
+  
+    return (
+        // <IndexRouter />
+        <Test state={state} />
+    );
+  }
+  
+  export default App;
+  
+  ```
+
+  ```jsx
+  // Test.jsx
+  import React from 'react'
+  
+  export default function Test(props) {
+  
+      console.log('props.state', props.state)
+  
+      props.state.age = 20
+  
+      return (
+          <div>Test</div>
+      )
+  }
+  
+  ```
+
+  我们使用一个循环计时器，能够发现，执行完`props.state.age = 20`后再打印`App.js`里的`State`。数据已经发生了变化。可以推测，props传递的时候保存的是地址，里面在做组件传递的时候，我们本质上可能用的是等于号赋值。
 
 
 
