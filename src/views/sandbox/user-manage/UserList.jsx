@@ -11,16 +11,16 @@ export default function UserList() {
     const [isUpdateVisible, setisUpdateVisible] = useState(false)
     const [roleList, setroleList] = useState([])
     const [regionList, setregionList] = useState([])
+    const [current, setcurrent] = useState(null)
 
     const [isUpdateDisabled, setisUpdateDisabled] = useState(false)
     const addForm = useRef(null)
     const updateForm = useRef(null)
+    
     useEffect(() => {
         axios.get("http://localhost:5000/users?_expand=role").then(res => {
             const list = res.data
-            // console.log('list', list)
             setdataSource(list)
-            // console.log('dataSource', dataSource)
         })
     }, [])
 
@@ -42,6 +42,25 @@ export default function UserList() {
         {
             title: '区域',
             dataIndex: 'region',
+            filters: [
+                ...regionList.map(item=>({
+                    text:item.title,
+                    value:item.value
+                })),
+                {
+                    text:"全球",
+                    value:"全球"
+                }    
+
+            ],
+
+            onFilter:(value,item)=>{
+                if(value==="全球"){
+                    return item.region===""
+                }
+                return item.region===value
+            },
+          
             render: (region) => {
                 return <b>{region === "" ? '全球' : region}</b>
             }
@@ -60,18 +79,8 @@ export default function UserList() {
         {
             title: "用户状态",
             dataIndex: 'roleState',
-            render: (roleState, item, index) => {
-                // console.log('roleState', roleState)
-                // console.log('item-------------------------', item)
-                // console.log('index', index)
-                // console.log(item === dataSource)  // 说明不是引用
-
-                // return <Switch checked={roleState} disabled={item.default} onChange={(item) => {handleChange(item)}}></Switch>
-                // 上面的写法，我们函数事件传入的参数空i睡觉哦当前switch开关状态，也就是true或false
-                // 所以我们选择不在箭头函数写参数，然后里面的回调函数，会通过作用域链的形式向上找到我们要修改的当前数据项，也就是item
-                // 所以应当改成这样
-                return <Switch checked={roleState} disabled={item.default} onChange={() => {handleChange(item)}}></Switch>
-
+            render: (roleState, item) => {
+                return <Switch checked={roleState} disabled={item.default} onChange={()=>handleChange(item)}></Switch>
             }
         },
         {
@@ -80,39 +89,35 @@ export default function UserList() {
                 return <div>
                     <Button danger shape="circle" icon={<DeleteOutlined />} onClick={() => confirmMethod(item)} disabled={item.default} />
 
-                    <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.default} onClick={() => handleUpdate(item)} />
+                    <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.default} onClick={()=>handleUpdate(item)}/>
                 </div>
             }
         }
     ];
 
-    const handleUpdate = (item) => {
-        setTimeout(() => {
+    const handleUpdate = (item)=>{
+        setTimeout(()=>{
             setisUpdateVisible(true)
-            if (item.roleId === 1) {
+            if(item.roleId===1){
                 //禁用
                 setisUpdateDisabled(true)
-            } else {
+            }else{
                 //取消禁用
                 setisUpdateDisabled(false)
             }
             updateForm.current.setFieldsValue(item)
-        }, 0)
+        },0)
+
+        setcurrent(item)
     }
 
-    const handleChange = (item) => {
-        // console.log('item----------------', JSON.stringify(item))
-        // console.log('dataSource-------------', JSON.stringify(dataSource))
-        // debugger;
+    const handleChange = (item)=>{
+        // console.log(item)
         item.roleState = !item.roleState
-
-        // console.log('item+++++++++++++++++', JSON.stringify(item))
-        // console.log('dataSource++++++++++++++', JSON.stringify(dataSource))
-        // 这里用于刷新页面
         setdataSource([...dataSource])
 
-        axios.patch(`http://localhost:5000/users/${item.id}`, {
-            roleState: item.roleState
+        axios.patch(`http://localhost:5000/users/${item.id}`,{
+            roleState:item.roleState
         })
     }
 
@@ -136,7 +141,7 @@ export default function UserList() {
         // console.log(item)
         // 当前页面同步状态 + 后端同步
 
-        setdataSource(dataSource.filter(data => data.id !== item.id))
+        setdataSource(dataSource.filter(data=>data.id!==item.id))
 
         axios.delete(`http://localhost:5000/users/${item.id}`)
     }
@@ -153,11 +158,11 @@ export default function UserList() {
                 ...value,
                 "roleState": true,
                 "default": false,
-            }).then(res => {
+            }).then(res=>{
                 console.log(res.data)
-                setdataSource([...dataSource, {
+                setdataSource([...dataSource,{
                     ...res.data,
-                    role: roleList.filter(item => item.id === value.roleId)[0]
+                    role:roleList.filter(item=>item.id===value.roleId)[0]
                 }])
             })
         }).catch(err => {
@@ -165,8 +170,25 @@ export default function UserList() {
         })
     }
 
-    const updateFormOK = () => {
+    const updateFormOK = ()=>{
+        updateForm.current.validateFields().then(value => {
+            // console.log(value)
+            setisUpdateVisible(false)
 
+            setdataSource(dataSource.map(item=>{
+                if(item.id===current.id){
+                    return {
+                        ...item,
+                        ...value,
+                        role:roleList.filter(data=>data.id===value.roleId)[0]
+                    }
+                }
+                return item
+            }))
+            setisUpdateDisabled(!isUpdateDisabled)
+
+            axios.patch(`http://localhost:5000/users/${current.id}`,value)
+        })
     }
 
     return (
