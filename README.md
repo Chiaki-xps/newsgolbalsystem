@@ -79,20 +79,49 @@
   + 注意我们的路由是属于模糊匹配的。而且直接使用`<Route path='' component={} >`会进行多个的匹配。因此我们需要对它进行一个组件包裹`Switch`组件包裹，见名知意，`Switch`表示按顺序匹配到一个就不继续匹配了。
 
     + 注意我们的react-route-domV5和V6版本是有差异的
-
     + `Switch`被替换成了`Routes`
-
     + `Route`属性中`component={组件}`修改成了`element={<组件 />}`
-
     + 具体变化:
-
+    
       + `https://blog.csdn.net/weixin_47091394/article/details/121772779`
-
+    
       + `https://segmentfault.com/a/1190000039190541`
-
+    
       + `https://v5.reactrouter.com/web/api/Route/component`
-
     + 为了项目统一，暂时先用V5版本。
+
+  ```js
+   <Switch>
+                          <Route path="/home" component={Home} />
+                          <Route path="/user-manage/list" component={UserList} />
+                          <Route path="/right-manage/role/list" component={RoleList} />
+                          <Route path="/right-manage/right/list" component={RightList} />
+                          {/* Redirect必须放在Switch最后一行 */}
+                          {/* 由于是模糊匹配，如果上面都匹配不到，只要带斜杆的就一定能匹配到下面这个 */}
+                          {/* <Redirect from='/' to='/home'/> */}
+                          {/* 如果我们想要精确匹配的时候，加入exact */}
+                          <Redirect from="/" to="/home" exact />
+                          {/* *表示全部匹配。应该放到最后一行，用于最后显示所有匹配失败显示404 */}
+  
+                          <Route path="*" component={Nopermission} />
+                      </Switch>
+  ```
+
+  ```js
+  
+  export default function IndexRouter() {
+      return (
+          <HashRouter>
+              <Switch>
+                  <Route path='/login' component={Login} />
+                  {/* <Route path='/' render={() => { return (localStorage.getItem('token')?<NewsSandBox></NewsSandBox>:<Redirect to = "/login" />) }} /> */}
+                  {/* 等价于 */}
+                  <Route path="/" render={()=>localStorage.getItem("token")? <NewsSandBox></NewsSandBox>:<Redirect to="/login"/> }/>
+              </Switch>
+          </HashRouter>
+      )
+  }
+  ```
 
 + #### `antd`
 
@@ -705,7 +734,9 @@
 
   然后我们使用`map`判断不为空的时候，而且我们的请求的用户`id`里面会的`rights`属性包含他的权限列表路由。进行`includes`匹配。有就可以渲染。
 
-+ 
++ #### 路由权限列表
+
+  后端给到权限列表。前端路由列表。登陆账号权限列表
 
 
 
