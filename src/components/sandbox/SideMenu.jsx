@@ -1,7 +1,7 @@
-import React,{useEffect,useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { Layout, Menu } from 'antd';
 import './index.css'
-import {withRouter} from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import {
   UserOutlined
 } from '@ant-design/icons';
@@ -47,40 +47,42 @@ const { SubMenu } = Menu
 //   }
 // ]
 const iconList = {
-  "/home":<UserOutlined />,
-  "/user-manage":<UserOutlined />,
-  "/user-manage/list":<UserOutlined />,
-  "/right-manage":<UserOutlined />,
-  "/right-manage/role/list":<UserOutlined />,
-  "/right-manage/right/list":<UserOutlined />
+  "/home": <UserOutlined />,
+  "/user-manage": <UserOutlined />,
+  "/user-manage/list": <UserOutlined />,
+  "/right-manage": <UserOutlined />,
+  "/right-manage/role/list": <UserOutlined />,
+  "/right-manage/right/list": <UserOutlined />
   //.......
 }
 
 
 function SideMenu(props) {
   const [meun, setMeun] = useState([])
-  useEffect(()=>{
-    axios.get("http://localhost:5000/rights?_embed=children").then(res=>{
+  useEffect(() => {
+    axios.get("http://localhost:5000/rights?_embed=children").then(res => {
       console.log(res.data)
       setMeun(res.data)
     })
-  },[])
+  }, [])
 
+  // console.log('localStorage.getItem("token")', localStorage.getItem("token"))
+  // console.log('JSON.parse(localStorage.getItem("token"))', JSON.parse(localStorage.getItem("token")))
+  // 先解构处role，之后再解构处rights
+  const { role: { rights } } = JSON.parse(localStorage.getItem("token"))
 
-  const checkPagePermission = (item)=>{
-    // 在这个项目中pagepermisson用于权限管理，表示要不要显示这个功能，也用于表示是否在菜单栏显示。
-    return item.pagepermisson
+  const checkPagePermission = (item) => {
+    return item.pagepermisson && rights.includes(item.key)
   }
-  const renderMenu = (menuList)=>{
-    return menuList.map(item=>{
-      // 注意item.children为undefined。利用长度来决定是否为父菜单，不是父菜单就不会有下标图标
-      if(item.children?.length>0 && checkPagePermission(item)){
+  const renderMenu = (menuList) => {
+    return menuList.map(item => {
+      if (item.children?.length > 0 && checkPagePermission(item)) {
         return <SubMenu key={item.key} icon={iconList[item.key]} title={item.title}>
-           { renderMenu(item.children) }
+          {renderMenu(item.children)}
         </SubMenu>
       }
 
-      return checkPagePermission(item) && <Menu.Item key={item.key} icon={iconList[item.key]}  onClick={()=>{
+      return checkPagePermission(item) && <Menu.Item key={item.key} icon={iconList[item.key]} onClick={() => {
         //  console.log(props)
         props.history.push(item.key)
       }}>{item.title}</Menu.Item>
@@ -89,14 +91,14 @@ function SideMenu(props) {
 
   // console.log(props.location.pathname)
   const selectKeys = [props.location.pathname]
-  const openKeys = ["/"+props.location.pathname.split("/")[1]]
+  const openKeys = ["/" + props.location.pathname.split("/")[1]]
   return (
     <Sider trigger={null} collapsible collapsed={false} >
-      <div style={{display:"flex",height:"100%","flexDirection":"column"}}>
+      <div style={{ display: "flex", height: "100%", "flexDirection": "column" }}>
         <div className="logo" >全球新闻发布管理系统</div>
-        <div style={{flex:1,"overflow":"auto"}}>
+        <div style={{ flex: 1, "overflow": "auto" }}>
           <Menu theme="dark" mode="inline" selectedKeys={selectKeys} className="aaaaaaa" defaultOpenKeys={openKeys}>
-              {renderMenu(meun)}
+            {renderMenu(meun)}
           </Menu>
         </div>
       </div>

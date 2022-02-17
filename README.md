@@ -680,9 +680,30 @@
 
   我们使用一个循环计时器，能够发现，执行完`props.state.age = 20`后再打印`App.js`里的`State`。数据已经发生了变化。可以推测，props传递的时候保存的是地址，里面在做组件传递的时候，我们本质上可能用的是等于号赋值。
 
++ #### 粒子效果
 
+  + 原来的作者不维护了，改成`yarn add react-tsparticles`
 
++ #### 关于打印出现`[object Object]`的情况
 
+  ![image-20220217142116066](README.assets/image-20220217142116066.png)
+
++ #### Json方法
+
+  + `JSON.parse()`：将字符串数据转成`js`对象。
+  + `JSON.stringify()`：`JS`对象转换为字符串。
+
++ #### 权限管理
+
+  + 配合后端把对应拥有权限发给你
+
+  ![image-20220217152355298](README.assets/image-20220217152355298.png)
+
+  代码解析，`renderMune`传入我们全部的权限`menuList`
+
+  ![image-20220217152432091](README.assets/image-20220217152432091.png)
+
+  然后我们使用`map`判断不为空的时候，而且我们的请求的用户`id`里面会的`rights`属性包含他的权限列表路由。进行`includes`匹配。有就可以渲染。
 
 
 
