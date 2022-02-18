@@ -738,11 +738,45 @@
 
   然后我们使用`map`判断不为空的时候，而且我们的请求的用户`id`里面会的`rights`属性包含他的权限列表路由。进行`includes`匹配。有就可以渲染。
 
-+ #### 路由权限列表
++ #### zhe路由权限列表
 
-  首先你本地要有一张完整的路由权限列表，可以从后端请求获取，或者自己本地写一个        
+  + 首先你本地要有一张完整的路由权限列表，这张列表的作用是路由对应的组件
 
   ![image-20220217164659794](README.assets/image-20220217164659794.png)
+
+  + 第二张表来自你的后端，会给你全部的路由表，通过`map`和`LocalRouterMap[item.key]`得到路由的路径和对应组件。
+
+    ```jsx
+     {
+                    BackRouteList.map(item=>
+                        {
+                            
+                                return <Route path={item.key} key={item.key} component={LocalRouterMap[item.key]} exact/> 
+                            
+                        }   
+                    )
+                }
+    ```
+
+  + 最后第三张表，来自你的渲染用户，通过判断是都拥有这个权限进行渲染。也就是做判断。
+
+    ```jsx
+    {
+                    BackRouteList.map(item=>
+                        {
+                            // if(有权限){}
+                            // cheackRoute负责检查这个路由权限是否全部关掉了
+                            // checkUserPermission检查资格
+                            if(checkRoute(item) && checkUserPermission(item)){
+                                return <Route path={item.key} key={item.key} component={LocalRouterMap[item.key]} exact/> 
+                            }
+                            return null
+                        }   
+                    )
+                }
+    ```
+
+    
 
 
 

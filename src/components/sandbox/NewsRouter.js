@@ -43,6 +43,17 @@ export default function NewsRouter() {
             // console.log(BackRouteList)
         })
     },[])
+
+    const {role:{rights}} = JSON.parse(localStorage.getItem("token"))
+
+    const checkRoute = (item)=>{
+        return LocalRouterMap[item.key] && item.pagepermisson
+    }
+
+    const checkUserPermission = (item)=>{
+        return rights.includes(item.key)
+    }
+
     return (
         <Switch>
             {
@@ -51,16 +62,15 @@ export default function NewsRouter() {
                         // if(有权限){}
                         // cheackRoute负责检查这个路由权限是否全部关掉了
                         // checkUserPermission检查资格
-                        // if(checkRoute() && checkUserPermission()){
+                        if(checkRoute(item) && checkUserPermission(item)){
                             return <Route path={item.key} key={item.key} component={LocalRouterMap[item.key]} exact/> 
-                        // }
-                        // return <Nopermission/>
+                        }
+                        return null
                     }   
                 )
             }
 
             <Redirect from="/" to="/home" exact />
-            {/*开发细节，一开始网路请求钱数据还没有达到。这时候先render。导致出现403，所以做一个空的判断 */}
             {
                 BackRouteList.length>0 && <Route path="*" component={Nopermission} />
             }
