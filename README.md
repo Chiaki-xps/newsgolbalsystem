@@ -784,7 +784,47 @@
 
   三目运算会导致内容销毁和重新创建。如果我们希望返回时保留的数据仍然还在，可以使用`displat:none`。
 
++ #### react-draft-wysiwyg draft-js
 
+  + `yarn add react-draft-wysiwyg draft-js`
+  + `yarn add draftjs-to-html`
+
+  ```jsx
+  import React,{useState} from 'react'
+  import { Editor } from "react-draft-wysiwyg";
+  import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+  import { convertToRaw } from 'draft-js';
+  import draftToHtml from 'draftjs-to-html'
+  
+  
+  export default function NewsEditor(props) {
+  
+      const [editorState, setEditorState] = useState("")
+      return (
+          <div>
+              <Editor
+                  // 让Editor成为受控组件
+                  editorState={editorState}
+                  onEditorStateChange={(editorState)=>setEditorState(editorState)}
+                  
+                  // 设置样式的
+                  toolbarClassName="aaaaa"
+                  wrapperClassName="bbbbb"
+                  editorClassName="ccccc"
+  
+                  onBlur={()=>{
+                      // console.log()
+  
+                      props.getContent(draftToHtml(convertToRaw(editorState.getCurrentContent())))
+                  }}
+              />
+          </div>
+      )
+  }
+  
+  ```
+
+  
 
 
 
