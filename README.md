@@ -805,6 +805,7 @@
               <Editor
                   // 让Editor成为受控组件
                   editorState={editorState}
+                  // 输入后更新改变富文本内容
                   onEditorStateChange={(editorState)=>setEditorState(editorState)}
                   
                   // 设置样式的
@@ -812,6 +813,7 @@
                   wrapperClassName="bbbbb"
                   editorClassName="ccccc"
   
+                  // 失去jiao'd 
                   onBlur={()=>{
                       // console.log()
   
@@ -823,7 +825,7 @@
   }
   
   ```
-
+  
   
 
 
