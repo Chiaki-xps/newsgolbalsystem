@@ -59,9 +59,6 @@ export default function NewsRouter() {
             {
                 BackRouteList.map(item=>
                     {
-                        // if(有权限){}
-                        // cheackRoute负责检查这个路由权限是否全部关掉了
-                        // checkUserPermission检查资格
                         if(checkRoute(item) && checkUserPermission(item)){
                             return <Route path={item.key} key={item.key} component={LocalRouterMap[item.key]} exact/> 
                         }
