@@ -813,7 +813,7 @@
                   wrapperClassName="bbbbb"
                   editorClassName="ccccc"
   
-                  // 失去jiao'd 
+                  // 失去焦点时获取文本内内容 
                   onBlur={()=>{
                       // console.log()
   
@@ -826,7 +826,16 @@
   
   ```
   
-  
++ #### 代码执行顺序问题
+
+  react执行逻辑代码后，渲染render，之后根据请求返回的数据，再渲染。所以要在开发时考虑初始值为null和undefined的问题。
+
+  + 解决办法，给渲染的state设置初始值为空对象。然后`state?.自属性`.
+  + 第二种，使用render渲染的过程中，进行三目运算判断。
+
++ #### moment
+
+  `yarn add moment`
 
 
 
