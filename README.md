@@ -837,6 +837,14 @@
 
   `yarn add moment`
 
++ #### 富文本编辑器
+
+  ```yarn
+  yarn add html-to-draftjs
+  ```
+
+  我们从后端获取的富文本编辑内容是`html`内容，想要在富文本编辑器上就需要将`html`内容转换为`draftjs`对象。
+
 
 
 
