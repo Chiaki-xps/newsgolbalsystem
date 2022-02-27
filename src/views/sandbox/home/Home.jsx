@@ -1,6 +1,7 @@
-import React from 'react'
-import { Card, Col, Row, List,Avatar } from 'antd';
+import React, { useEffect, useState } from 'react'
+import { Card, Col, Row, List, Avatar } from 'antd';
 import { EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
+import axios from 'axios'
 const { Meta } = Card;
 
 // import axios from 'axios'
@@ -46,7 +47,25 @@ export default function Home() {
         //     console.log(res.data)
         // })
     }
-    
+
+
+    const [viewList, setviewList] = useState([])
+    const [starList, setstarList] = useState([])
+    useEffect(() => {
+        axios.get("/news?publishState=2&_expand=category&_sort=view&_order=desc&_limit=6").then(res => {
+            // console.log(res.data)
+            setviewList(res.data)
+        })
+    }, [])
+
+    useEffect(() => {
+        axios.get("/news?publishState=2&_expand=category&_sort=star&_order=desc&_limit=6").then(res => {
+            // console.log(res.data)
+            setstarList(res.data)
+        })
+    }, [])
+
+    const { username, region, role: { roleName } } = JSON.parse(localStorage.getItem("token"))
     return (
         <div className="site-card-wrapper">
             <Row gutter={16}>
@@ -55,8 +74,10 @@ export default function Home() {
                         <List
                             size="small"
                             // bordered
-                            dataSource={["1111", "222", "33333"]}
-                            renderItem={item => <List.Item>{item}</List.Item>}
+                            dataSource={viewList}
+                            renderItem={item => <List.Item>
+                                <a href={`#/news-manage/preview/${item.id}`}>{item.title}</a>
+                            </List.Item>}
                         />
                     </Card>
                 </Col>
@@ -65,8 +86,10 @@ export default function Home() {
                         <List
                             size="small"
                             // bordered
-                            dataSource={["1111", "222", "33333"]}
-                            renderItem={item => <List.Item>{item}</List.Item>}
+                            dataSource={starList}
+                            renderItem={item => <List.Item>
+                                <a href={`#/news-manage/preview/${item.id}`}>{item.title}</a>
+                            </List.Item>}
                         />
                     </Card>
                 </Col>
@@ -86,12 +109,20 @@ export default function Home() {
                     >
                         <Meta
                             avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                            title="Card title"
-                            description="This is the description"
+                            title={username}
+                            description={
+                                <div>
+                                    <b>{region ? region : "全球"}</b>
+                                    <span style={{
+                                        paddingLeft: "30px"
+                                    }}>{roleName}</span>
+                                </div>
+                            }
                         />
                     </Card>
                 </Col>
             </Row>
+
         </div>
     )
 }
