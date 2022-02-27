@@ -851,17 +851,35 @@
 
   + `yarn add redux react-redux`
 
+  ```jsx
+  const mapStateToProps = ({CollApsedReducer:{isCollapsed}})=>{
+      // console.log(state)
+      return {
+          isCollapsed
+      }
+  }
   
-
+  const mapDispatchToProps = {
+      changeCollapsed(){
+          return {
+              type: "change_collapsed"
+              // payload:
+          }//action 
+      }
+  }
+  // mapStateToProps是我们想要传入定制的状态
+  // mapStateToProps会被传入合并的reduce所有最新的值
+  // 最终在我们传入的组件中会收到这个state，并在props中
   
+  // mapDispatchToProps将里面的dispatch函数传入到参数组件的props中
+  export default connect(mapStateToProps,mapDispatchToProps)(withRouter(TopHeader))
+  ```
 
++ #### redux持久化
 
+  当我们的页面点击刷新的时候，我们的redux重新执行，一些状态被重置，假如不想这样子，可以考虑使用
 
-
-
-
-
-
+  `yarn add redux-persist` 
 
 
 
