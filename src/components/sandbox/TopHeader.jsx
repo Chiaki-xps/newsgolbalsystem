@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Layout, Dropdown,Menu ,Avatar} from 'antd';
 import {
     MenuUnfoldOutlined,
@@ -12,10 +12,12 @@ const { Header } = Layout;
 
 function TopHeader(props) {
 
-    console.log(props)
-    const [collapsed, setCollapsed] = useState(false)
+    // console.log(props)
+    // const [collapsed, setCollapsed] = useState(false)
     const changeCollapsed = () => {
-        setCollapsed(!collapsed)
+        //改变state的isCollapsed
+        // console.log(props)
+        props.changeCollapsed()
     }
 
     const {role:{roleName},username} = JSON.parse(localStorage.getItem("token"))
@@ -42,7 +44,7 @@ function TopHeader(props) {
                 })} */}
             {/* 等价于 */}
             {
-                collapsed ? <MenuUnfoldOutlined onClick={changeCollapsed} /> : <MenuFoldOutlined onClick={changeCollapsed} />
+                props.isCollapsed ? <MenuUnfoldOutlined onClick={changeCollapsed} /> : <MenuFoldOutlined onClick={changeCollapsed} />
             }
 
             <div style={{ float: "right" }}>
@@ -69,7 +71,17 @@ const mapStateToProps = ({CollApsedReducer:{isCollapsed}})=>{
     }
 }
 
+const mapDispatchToProps = {
+    changeCollapsed(){
+        return {
+            type: "change_collapsed"
+            // payload:
+        }//action 
+    }
+}
 // mapStateToProps是我们想要传入定制的状态
 // mapStateToProps会被传入合并的reduce所有最新的值
 // 最终在我们传入的组件中会收到这个state，并在props中
-export default connect(mapStateToProps)(withRouter(TopHeader))
+
+// mapDispatchToProps将里面的dispatch函数传入到参数组件的props中
+export default connect(mapStateToProps,mapDispatchToProps)(withRouter(TopHeader))
