@@ -883,6 +883,18 @@
 
 + #### FeHelper浏览器插件
 
++ #### `yarn add echarts`
+
++ 如果我们请求到的数据乱序的话，我们想要根据标题或某个特征分组的时候，就可以使用loadsh.groupBy
+
+  ![image-20220227213452516](README.assets/image-20220227213452516.png)
+
+
+
+
+
+
+
 
 
 

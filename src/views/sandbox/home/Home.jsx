@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Card, Col, Row, List, Avatar } from 'antd';
 import { EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
 import axios from 'axios'
+import * as Echarts from 'echarts'
+import _ from 'lodash'
+
 const { Meta } = Card;
 
 // import axios from 'axios'
@@ -48,9 +51,10 @@ export default function Home() {
         // })
     }
 
-
     const [viewList, setviewList] = useState([])
     const [starList, setstarList] = useState([])
+
+    const barRef = useRef()
     useEffect(() => {
         axios.get("/news?publishState=2&_expand=category&_sort=view&_order=desc&_limit=6").then(res => {
             // console.log(res.data)
@@ -64,6 +68,42 @@ export default function Home() {
             setstarList(res.data)
         })
     }, [])
+
+    useEffect(() => {
+
+        axios.get("/news?publishState=2&_expand=category").then(res => {
+            // console.log(res.data)
+            // console.log()
+            renderBarView(_.groupBy(res.data, item => item.category.title))
+        })
+    }, [])
+
+    const renderBarView = (obj) => {
+        var myChart = Echarts.init(barRef.current);
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '新闻分类图示'
+            },
+            tooltip: {},
+            legend: {
+                data: ['数量']
+            },
+            xAxis: {
+                data: Object.keys(obj)
+            },
+            yAxis: {},
+            series: [{
+                name: '数量',
+                type: 'bar',
+                data: Object.values(obj).map(item => item.length)
+            }]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    }
 
     const { username, region, role: { roleName } } = JSON.parse(localStorage.getItem("token"))
     return (
@@ -123,6 +163,12 @@ export default function Home() {
                 </Col>
             </Row>
 
+
+            <div ref={barRef} style={{
+                width: '100%',
+                height: "400px",
+                marginTop: "30px"
+            }}></div>
         </div>
     )
 }
