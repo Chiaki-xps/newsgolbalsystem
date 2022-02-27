@@ -889,7 +889,26 @@
 
   ![image-20220227213452516](README.assets/image-20220227213452516.png)
 
++ #### 关于柱状图自适应
 
+  可以使用自带的`.resize()`方法，但是这个返回会导致全局都在自适应。所以当我们卸载`echarts`的时候记得使用`useEffecr`中的return设置`window.onresize = null`
+
+  ```jsx
+     useEffect(() => {
+  
+          axios.get("/news?publishState=2&_expand=category").then(res => {
+              // console.log(res.data)
+              // console.log()
+              renderBarView(_.groupBy(res.data, item => item.category.title))
+          })
+  
+          return () => {
+              window.onresize = null
+          }
+      }, [])
+  ```
+
+  
 
 
 
