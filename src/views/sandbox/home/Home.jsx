@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Card, Col, Row, List, Avatar } from 'antd';
+import { Card, Col, Row, List, Avatar, Drawer } from 'antd';
 import { EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
 import axios from 'axios'
 import * as Echarts from 'echarts'
@@ -53,8 +53,11 @@ export default function Home() {
 
     const [viewList, setviewList] = useState([])
     const [starList, setstarList] = useState([])
-
+    const [allList, setallList] = useState([])
+    const [visible, setvisible] = useState(false)
+    const [pieChart, setpieChart] = useState(null)
     const barRef = useRef()
+    const pieRef = useRef()
     useEffect(() => {
         axios.get("/news?publishState=2&_expand=category&_sort=view&_order=desc&_limit=6").then(res => {
             // console.log(res.data)
@@ -75,6 +78,8 @@ export default function Home() {
             // console.log(res.data)
             // console.log()
             renderBarView(_.groupBy(res.data, item => item.category.title))
+
+            setallList(res.data)
         })
 
         return () => {
@@ -121,6 +126,61 @@ export default function Home() {
         }
     }
 
+    const renderPieView = (obj) => {
+        //数据处理工作
+
+        var currentList = allList.filter(item => item.author === username)
+        var groupObj = _.groupBy(currentList, item => item.category.title)
+        var list = []
+        for (var i in groupObj) {
+            list.push({
+                name: i,
+                value: groupObj[i].length
+            })
+        }
+        var myChart;
+        if (!pieChart) {
+            myChart = Echarts.init(pieRef.current);
+            setpieChart(myChart)
+        } else {
+            myChart = pieChart
+        }
+        var option;
+
+        option = {
+            title: {
+                text: '当前用户新闻分类图示',
+                // subtext: '纯属虚构',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+            },
+            series: [
+                {
+                    name: '发布数量',
+                    type: 'pie',
+                    radius: '50%',
+                    data: list,
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+
+    }
+
     const { username, region, role: { roleName } } = JSON.parse(localStorage.getItem("token"))
     return (
         <div className="site-card-wrapper">
@@ -158,7 +218,14 @@ export default function Home() {
                             />
                         }
                         actions={[
-                            <SettingOutlined key="setting" />,
+                            <SettingOutlined key="setting" onClick={() => {
+                                setTimeout(() => {
+                                    setvisible(true)
+
+                                    // init初始化
+                                    renderPieView()
+                                }, 0)
+                            }} />,
                             <EditOutlined key="edit" />,
                             <EllipsisOutlined key="ellipsis" />,
                         ]}
@@ -178,6 +245,22 @@ export default function Home() {
                     </Card>
                 </Col>
             </Row>
+            <Drawer
+                width="500px"
+                title="个人新闻分类"
+                placement="right"
+                closable={true}
+                onClose={() => {
+                    setvisible(false)
+                }}
+                visible={visible}
+            >
+                <div ref={pieRef} style={{
+                    width: '100%',
+                    height: "400px",
+                    marginTop: "30px"
+                }}></div>
+            </Drawer>
 
 
             <div ref={barRef} style={{

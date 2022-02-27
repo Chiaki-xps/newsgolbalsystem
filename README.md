@@ -908,11 +908,21 @@
       }, [])
   ```
 
-  
++ #### `Error: Initialize failed: invalid dom.`
 
+  初始化失败，说明想要加载的DOM节点还没有被渲染出来。在`Antd`中，弹出框还有侧边弹出在第一次`visible`变为`true`的时候是创建，之后才是隐藏和显示。
 
+  这就涉及到一个问题就是State是同步还是异步的问题.当我们试图`setState(true)`让东西渲染出来DOM节点，然后我们进行一些初始化，但是会发现找不到该节点。这就是由于我们的`setSate`在react事件中是异步的。包括函数周期中使用`setState`也是异步的。这就导致并不会马上渲染，而是异步继续合并其他state一起渲染，最终导致继续往下执行初始化失败。这时候我们要想办法让state先同步渲染。让`state`同步渲染的办法就绑定js原生事件，或者使用setTimeout/setInterval的方式。
 
+```http
+https://www.jianshu.com/p/799b8a14ef96
+```
 
+```http
+https://blog.csdn.net/Aquamay/article/details/121590592
+```
+
+![image-20220228003809979](README.assets/image-20220228003809979.png)
 
 
 
